@@ -39,7 +39,16 @@ uint8_t* opt_push_8_bit(uint8_t *ip, line_t* out){
 
 uint8_t* opt_push_16_bit(uint8_t* ip, line_t* out){}
 
-uint8_t* opt_push_32_bit(uint8_t* ip, line_t* out){}
+uint8_t* opt_push_32_bit(uint8_t* ip, line_t* out){
+    out->instruction_name = create_string("push32");
+    out->instruction_args_amount = 4;
+    out->instruction_args = malloc(sizeof(uint8_t));
+    out->instruction_args[0] = *add_to_ip(ip, 1);
+    out->instruction_args[1] = *add_to_ip(ip, 2);
+    out->instruction_args[2] = *add_to_ip(ip, 3);
+    out->instruction_args[3] = *add_to_ip(ip, 4);
+    return add_to_ip(ip, 2);
+}
 
 uint8_t* opt_emit(uint8_t* ip, line_t* out){
     out->instruction_name = create_string("nop");
