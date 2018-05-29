@@ -8,6 +8,7 @@
 #include "header/widgets.h"
 #include "header/helper.h"
 #include "header/program.h"
+#include "header/io.h"
 
 static void finish(int sig) {
     endwin();
@@ -51,47 +52,42 @@ void usage() {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
+    if (argc < 2)
         usage();
-    }
+
     signal(SIGINT, finish);
+
     program_t *program = generate_program(argv[1]);
+
     init_ncurses();
+
     write_keymap_line();
     write_program(program, 0);
+
     move(0, 0);
     int x_pos = 0;
     int y_pos = 0;
     bool exit = false;
-    int64_t write_pos = 0;
+    int64_t scroll_pos = 0;
 
     while (!exit) {
         getyx(stdscr, y_pos, x_pos);
-        chtype old_c = inch();
-        int c = getch();
-        move(y_pos, x_pos);
-        addch(old_c);
-        move(y_pos, x_pos);
-        if (c == 'q')
-            exit = true;
-        else if (c == KEY_UP) {
-            if(y_pos <= 0 && write_pos - 1 >= 0){
-                clear();
-                write_program(program, (uint32_t)--write_pos);
-                write_keymap_line();
-                move(0, x_pos);
-            }else
-                move(y_pos -1, x_pos);
+        int c = get_key_press();
 
-        } else if (c == KEY_DOWN) {
-            if(y_pos >= LINES - 2){
-                clear();
-                write_program(program, ++write_pos);
-                write_keymap_line();
-                move(LINES - 2, x_pos);
-            }else
-                move(y_pos + 1, x_pos);
+        switch (c){
+            case(KEY_UP):
+                key_up_event(y_pos, x_pos, &scroll_pos, program);
+                break;
+            case (KEY_DOWN):
+                key_down_event(y_pos, x_pos, &scroll_pos, program);
+                break;
+            case('q'):
+                exit = true;
+                break;
+            default:
+                break;
         }
+
         refresh();
     }
     delete_program(program);
