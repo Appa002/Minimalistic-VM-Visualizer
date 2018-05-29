@@ -17,8 +17,17 @@
 void write_keymap_line(){
     move(LINES - 1, 0);
     attrset(COLOR_PAIR(8));
-    addstr("q(quit)");
+    write_colored("q(quit)", 8);
+    write_colored(" ", 0);
+    write_colored("up arrow(scroll up)", 8);
+    write_colored(" ", 0);
+    write_colored("down arrow(scroll down)", 8);
+    write_colored(" ", 0);
+    write_colored("left arrow(select left)", 8);
+    write_colored(" ", 0);
+    write_colored("right arrow(select right)", 8);
     attrset(COLOR_PAIR(0));
+    move(0, 0);
     refresh();
 }
 
@@ -44,7 +53,6 @@ void write_program(program_t* program, uint32_t start_line) {
     attrset(COLOR_PAIR(0));
     refresh();
 }
-
 
 void unmark_line_part(program_t* program, uint32_t start_line, uint32_t line, uint32_t element){
     move(line - start_line, 0);
