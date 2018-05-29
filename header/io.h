@@ -21,19 +21,19 @@ int get_key_press(){
     return c;
 }
 
-void key_up_event(int y_pos, int x_pos,  int64_t* scroll_pos, program_t* program){
+void scroll_up(int y_pos, int x_pos, int64_t *fist_displayed_line, program_t *program){
     //Scroll the view up if necessary
-    if(y_pos <= 0 && *scroll_pos - 1 >= 0){
+    if(y_pos <= 0 && *fist_displayed_line - 1 >= 0){
         clear();
-        *scroll_pos = *scroll_pos - 1;
-        write_program(program, (uint32_t)*scroll_pos);
+        *fist_displayed_line = *fist_displayed_line - 1;
+        write_program(program, (uint32_t)*fist_displayed_line);
         write_keymap_line();
-        move(0, x_pos);
+        move(0, 0);
     }else
         move(y_pos -1, x_pos);
 }
 
-void key_down_event(int y_pos, int x_pos,  int64_t* scroll_pos, program_t* program){
+void scroll_down(int y_pos, int x_pos, int64_t *scroll_pos, program_t *program){
     //Scroll the view down if necessary
     if(y_pos >= LINES - 2){
         clear();
