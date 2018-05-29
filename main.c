@@ -9,14 +9,14 @@
 #include "header/helper.h"
 #include "header/program.h"
 
-static void finish(int sig){
+static void finish(int sig) {
     endwin();
     exit(sig);
 }
 
-void init_ncurses(){
+void init_ncurses() {
     setlocale(LC_ALL, "");
-    setlocale(LC_CTYPE,"C-UTF-8");
+    setlocale(LC_CTYPE, "C-UTF-8");
 
     initscr();      /* initialize the curses library */
     keypad(stdscr, TRUE);  /* enable keyboard mapping */
@@ -33,59 +33,64 @@ void init_ncurses(){
          * pair as for the foreground color, though of course that is not
          * necessary:
          */
-        init_pair(1, COLOR_RED,     COLOR_BLACK);
-        init_pair(2, COLOR_GREEN,   COLOR_BLACK);
-        init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
-        init_pair(4, COLOR_BLUE,    COLOR_BLACK);
-        init_pair(5, COLOR_CYAN,    COLOR_BLACK);
+        init_pair(1, COLOR_RED, COLOR_BLACK);
+        init_pair(2, COLOR_GREEN, COLOR_BLACK);
+        init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(4, COLOR_BLUE, COLOR_BLACK);
+        init_pair(5, COLOR_CYAN, COLOR_BLACK);
         init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(7, COLOR_WHITE,   COLOR_BLACK);
+        init_pair(7, COLOR_WHITE, COLOR_BLACK);
 
         init_pair(8, COLOR_BLACK, COLOR_GREEN);
     }
 }
 
-void usage(){
+void usage() {
     printf("Usage: vmv [FILE]\n");
     exit(-1);
 }
 
 int main(int argc, char *argv[]) {
-    if(argc < 2){
+    if (argc < 2) {
         usage();
     }
-
     signal(SIGINT, finish);
     program_t *program = generate_program(argv[1]);
     init_ncurses();
     write_keymap_line();
-    write_program(program);
-
+    write_program(program, 0);
     move(0, 0);
-    int x_pos;
-    int y_pos;
+    int x_pos = 0;
+    int y_pos = 0;
     bool exit = false;
+    int64_t write_pos = 0;
 
     while (!exit) {
         getyx(stdscr, y_pos, x_pos);
         chtype old_c = inch();
         int c = getch();
-
         move(y_pos, x_pos);
         addch(old_c);
         move(y_pos, x_pos);
-        switch (c){
-            case ('q'):
-                exit = true;
-                break;
-            case (KEY_UP):
-                move(y_pos - 1, x_pos);
-                break;
-            case (KEY_DOWN):
+        if (c == 'q')
+            exit = true;
+        else if (c == KEY_UP) {
+            if(y_pos <= 0 && write_pos - 1 >= 0){
+                clear();
+                write_program(program, (uint32_t)--write_pos);
+                write_keymap_line();
+                move(0, x_pos);
+            }else
+                move(y_pos -1, x_pos);
+
+        } else if (c == KEY_DOWN) {
+            if(y_pos >= LINES - 2){
+                clear();
+                write_program(program, ++write_pos);
+                write_keymap_line();
+                move(LINES - 2, x_pos);
+            }else
                 move(y_pos + 1, x_pos);
-                break;
-            default:
-                break;
         }
         refresh();
     }
