@@ -47,7 +47,7 @@ uint8_t* opt_push_32_bit(uint8_t* ip, line_t* out){
     out->instruction_args[1] = *add_to_ip(ip, 2);
     out->instruction_args[2] = *add_to_ip(ip, 3);
     out->instruction_args[3] = *add_to_ip(ip, 4);
-    return add_to_ip(ip, 2);
+    return add_to_ip(ip, 5);
 }
 
 uint8_t* opt_emit(uint8_t* ip, line_t* out){

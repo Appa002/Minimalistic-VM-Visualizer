@@ -50,9 +50,9 @@ program_t* generate_program(const char* filename){
     uint32_t i = 0;
     while (*ip != 'h'){
         line_t* line = malloc(sizeof(line_t));
-        ip = opt[*ip](ip, line);
-
         line->line_num = (uint32_t)(ip - raw_data);
+
+        ip = opt[*ip](ip, line);
         out->lines[i] = line;
         i++;
     }
