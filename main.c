@@ -68,18 +68,27 @@ int main(int argc, char *argv[]) {
     int x_pos = 0;
     int y_pos = 0;
     bool exit = false;
-    int64_t scroll_pos = 0;
+    int64_t first_displayed_line = 0;
+    int32_t column = 0;
 
     while (!exit) {
         getyx(stdscr, y_pos, x_pos);
-        int c = get_key_press();
+        if(first_displayed_line + y_pos < program->line_amount)
+            mark_line_part(program, (uint32_t)first_displayed_line, (uint32_t)first_displayed_line + y_pos, &column);
 
+        int c = get_key_press();
         switch (c){
             case(KEY_UP):
-                key_up_event(y_pos, x_pos, &scroll_pos, program);
+                scroll_up(y_pos, x_pos, &first_displayed_line, program);
                 break;
             case (KEY_DOWN):
-                key_down_event(y_pos, x_pos, &scroll_pos, program);
+                scroll_down(y_pos, x_pos, &first_displayed_line, program);
+                break;
+            case (KEY_RIGHT):
+                column++;
+                break;
+            case (KEY_LEFT):
+                column--;
                 break;
             case('q'):
                 exit = true;
