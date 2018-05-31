@@ -8,7 +8,6 @@
 #include "header/widgets.h"
 #include "header/helper.h"
 #include "header/program.h"
-#include "header/io.h"
 
 static void finish(int sig) {
     endwin();
