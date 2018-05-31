@@ -9,9 +9,8 @@
 #include "header/helper.h"
 #include "header/program.h"
 
-static void finish(int sig) {
+void finish(void) {
     endwin();
-    exit(sig);
 }
 
 void init_ncurses() {
@@ -54,7 +53,7 @@ int main(int argc, char *argv[]) {
     if (argc < 2)
         usage();
 
-    signal(SIGINT, finish);
+    atexit(finish);
 
     program_t *program = generate_program(argv[1]);
 
@@ -67,21 +66,24 @@ int main(int argc, char *argv[]) {
     int x_pos = 0;
     int y_pos = 0;
     bool exit = false;
-    int64_t first_displayed_line = 0;
+    uint32_t scrolled_to_line_index = 0;
     int32_t column = 0;
+    uint32_t selected_line_index;
 
     while (!exit) {
         getyx(stdscr, y_pos, x_pos);
-        if(first_displayed_line + y_pos < program->line_amount)
-            mark_line_part(program, (uint32_t)first_displayed_line, (uint32_t)first_displayed_line + y_pos, &column);
+        selected_line_index = scrolled_to_line_index + y_pos;
+
+        if(scrolled_to_line_index + y_pos < program->line_amount)
+            mark_line_part(program, y_pos, selected_line_index, &column);
 
         int c = get_key_press();
         switch (c){
             case(KEY_UP):
-                scroll_up(y_pos, x_pos, &first_displayed_line, program);
+                move_cursor_up(&scrolled_to_line_index, program, y_pos, x_pos);
                 break;
             case (KEY_DOWN):
-                scroll_down(y_pos, x_pos, &first_displayed_line, program);
+                move_cursor_down(&scrolled_to_line_index, program, y_pos, x_pos);
                 break;
             case (KEY_RIGHT):
                 column++;
@@ -99,5 +101,5 @@ int main(int argc, char *argv[]) {
         refresh();
     }
     delete_program(program);
-    finish(0);
+    finish();
 }
