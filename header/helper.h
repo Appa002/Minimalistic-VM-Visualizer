@@ -56,7 +56,15 @@ program_t* generate_program(const char* filename){
         out->lines[i] = line;
         i++;
     }
-    out->line_amount = i;
+    out->line_amount = i + 1;
+
+    line_t* line = malloc(sizeof(line_t));
+    line->line_num = (uint32_t)(ip - raw_data);
+    line->instruction_args_amount = 0;
+    line->instruction_name = create_string("halt");
+
+    out->lines[i] = line;
+
     return out;
 }
 
