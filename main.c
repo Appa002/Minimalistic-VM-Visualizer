@@ -97,8 +97,8 @@ int main(int argc, char *argv[]) {
                 exit = true;
                 break;
             case ('s'):
-                save_file(argv[1], program);
-                write_saved(y_pos);
+                if(save_file(argv[1], program));
+                    write_saved(y_pos);
                 break;
             default:
                 break;
