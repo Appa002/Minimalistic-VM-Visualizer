@@ -10,28 +10,7 @@
 
 #include "program.h"
 #include "instructions.h"
-
-int load_file(const char *filename, unsigned char **result, size_t* size) {
-    *size = 0;
-    FILE *f = fopen(filename, "rb");
-    if (f == NULL)
-    {
-        *result = NULL;
-        return -1;
-    }
-    fseek(f, 0, SEEK_END);
-    *size = (unsigned int)ftell(f);
-    fseek(f, 0, SEEK_SET);
-    *result = (unsigned char *)malloc(*size+1);
-    if (*size != fread(*result, sizeof(char), *size, f))
-    {
-        free(*result);
-        return -2; // -2 means file reading fail
-    }
-    fclose(f);
-    (*result)[*size] = 0;
-    return 0;
-}
+#include "io.h"
 
 program_t* generate_program(const char* filename){
     unsigned char* raw_data;
@@ -50,7 +29,7 @@ program_t* generate_program(const char* filename){
     uint32_t i = 0;
     while (*ip != 'h'){
         line_t* line = malloc(sizeof(line_t));
-        line->line_num = (uint32_t)(ip - raw_data);
+        line->line_address = (uint32_t)(ip - raw_data);
 
         ip = opt[*ip](ip, line);
         out->lines[i] = line;
@@ -59,7 +38,7 @@ program_t* generate_program(const char* filename){
     out->line_amount = i + 1;
 
     line_t* line = malloc(sizeof(line_t));
-    line->line_num = (uint32_t)(ip - raw_data);
+    line->line_address = (uint32_t)(ip - raw_data);
     line->instruction_args_amount = 0;
     line->instruction_name = create_string("halt");
 
