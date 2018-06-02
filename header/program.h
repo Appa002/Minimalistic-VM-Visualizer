@@ -9,7 +9,10 @@
 
 typedef struct Line{
     uint32_t line_address;
+    uint32_t line_raw_size;
+
     char* instruction_name;
+    uint8_t instruction_opt;
     uint8_t* instruction_args;
     uint32_t instruction_args_amount;
 
