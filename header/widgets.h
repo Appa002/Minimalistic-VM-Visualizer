@@ -15,13 +15,6 @@
 #include "program.h"
 #include "utils.h"
 
-void clear_line(int y_pos){
-    move(y_pos, 0);
-    for(size_t i = 0; i < COLS; i++){
-        write_colored(" ", 0);
-    }
-}
-
 void write_keymap_line() {
     move(LINES - 1, 0);
     attrset(COLOR_PAIR(8));
@@ -120,18 +113,6 @@ void write_program(program_t *program, uint32_t start_line) {
     refresh();
 }
 
-int get_key_press() {
-    int x_pos;
-    int y_pos;
-    getyx(stdscr, y_pos, x_pos);
-    chtype old_c = inch();
-    int c = getch();
-    move(y_pos, x_pos);
-    addch(old_c);
-    move(y_pos, x_pos);
-    return c;
-}
-
 bool save_scroll_to(uint32_t line_index, program_t *program) {
     if (line_index >= program->line_amount)
         return false;
@@ -199,5 +180,14 @@ void mark_line_part(program_t *program, int y_pos, uint32_t line_index, int32_t 
     move(y_pos, 0);
 }
 
+void write_saved(int y_pos){
+    WINDOW* save_state = dupwin(stdscr);
+
+    write_center_box("Saved!", "Press <enter>", 5, 5, 1);
+
+    get_key_press();
+    overwrite(save_state, stdscr);
+    move(y_pos, 0);
+}
 
 #endif

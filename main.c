@@ -8,6 +8,7 @@
 #include "header/widgets.h"
 #include "header/helper.h"
 #include "header/program.h"
+#include "header/io.h"
 
 void finish(void) {
     endwin();
@@ -94,6 +95,10 @@ int main(int argc, char *argv[]) {
                 break;
             case('q'):
                 exit = true;
+                break;
+            case ('s'):
+                save_file(argv[1], program);
+                write_saved(y_pos);
                 break;
             default:
                 break;
