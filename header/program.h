@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 typedef struct Line{
-    uint32_t line_num;
+    uint32_t line_address;
     char* instruction_name;
     uint8_t* instruction_args;
     uint32_t instruction_args_amount;

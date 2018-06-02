@@ -95,7 +95,7 @@ void write_line_at(uint32_t line_index, int y_pos, program_t *program) {
     move(y_pos, 0);
 
     char line_num_as_hex[32];
-    sprintf(line_num_as_hex, "%#010x", program->lines[line_index]->line_num);
+    sprintf(line_num_as_hex, "%#010x", program->lines[line_index]->line_address);
 
     write_colored(line_num_as_hex, 0);
     addstr(" ");
@@ -181,7 +181,7 @@ void mark_line_part(program_t *program, int y_pos, uint32_t line_index, int32_t 
     move(y_pos, 0);
 
     char line_num_as_hex[32];
-    sprintf(line_num_as_hex, "%#010x", program->lines[line_index]->line_num);
+    sprintf(line_num_as_hex, "%#010x", program->lines[line_index]->line_address);
 
     if_write_colored(*element == 0, line_num_as_hex, 6);
     addstr(" ");
