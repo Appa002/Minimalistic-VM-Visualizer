@@ -39,8 +39,8 @@ void init_ncurses() {
         init_pair(5, COLOR_CYAN, COLOR_BLACK);
         init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
         init_pair(7, COLOR_WHITE, COLOR_BLACK);
-
         init_pair(8, COLOR_BLACK, COLOR_GREEN);
+        init_pair(9, COLOR_BLACK, COLOR_WHITE);
     }
 }
 
@@ -54,12 +54,12 @@ int main(int argc, char *argv[]) {
         usage();
 
     atexit(finish);
-
     program_t *program = generate_program(argv[1]);
 
     init_ncurses();
 
     write_keymap_line();
+    write_representation_line(0, program, 0);
     write_program(program, 0);
 
     move(0, 0);
@@ -71,19 +71,20 @@ int main(int argc, char *argv[]) {
     uint32_t selected_line_index;
 
     while (!exit) {
-        getyx(stdscr, y_pos, x_pos);
         selected_line_index = scrolled_to_line_index + y_pos;
 
-        if(scrolled_to_line_index + y_pos < program->line_amount)
+        if(scrolled_to_line_index + y_pos < program->line_amount){
             mark_line_part(program, y_pos, selected_line_index, &column);
+            write_representation_line(selected_line_index, program, (uint32_t)column);
+        }
 
         int c = get_key_press();
         switch (c){
             case(KEY_UP):
-                move_cursor_up(&scrolled_to_line_index, program, y_pos, x_pos);
+                move_cursor_up(&scrolled_to_line_index, program, &y_pos, &x_pos);
                 break;
             case (KEY_DOWN):
-                move_cursor_down(&scrolled_to_line_index, program, y_pos, x_pos);
+                move_cursor_down(&scrolled_to_line_index, program, &y_pos, &x_pos);
                 break;
             case (KEY_RIGHT):
                 column++;

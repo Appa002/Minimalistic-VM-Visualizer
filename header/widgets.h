@@ -15,6 +15,13 @@
 #include "program.h"
 #include "utils.h"
 
+void clear_line(int y_pos){
+    move(y_pos, 0);
+    for(size_t i = 0; i < COLS; i++){
+        write_colored(" ", 0);
+    }
+}
+
 void write_keymap_line() {
     move(LINES - 1, 0);
     attrset(COLOR_PAIR(8));
@@ -29,6 +36,55 @@ void write_keymap_line() {
     write_colored("right arrow(select right)", 8);
     attrset(COLOR_PAIR(0));
     move(0, 0);
+    refresh();
+}
+
+void write_representation_line(uint32_t line_index, program_t* program, uint32_t element){
+    line_t* line = program->lines[line_index];
+    clear_line(LINES - 2);
+    move(LINES - 2, 0);
+
+    if(line_index >= program->line_amount)
+        return;
+
+    if(element - 2 > line->instruction_args_amount)
+        element = 0;
+    else
+        element -= 2;
+
+    if(line->instruction_args_amount == 0) {
+        char instruction[256];
+        sprintf(instruction, "Instruction: %s", line->instruction_name);
+        write_colored(instruction, 9);
+        write_colored(" ", 0);
+        write_colored("No Args", 9);
+        return;
+    }
+
+    char hex[256];
+    char c[256];
+    char dec[256];
+    char arg[256];
+    char instruction[256];
+
+    sprintf(hex, "Hex: %#04x", line->instruction_args[element]);
+    sprintf(c, "Char: %c", line->instruction_args[element]);
+    sprintf(dec, "Dec: %u", line->instruction_args[element]);
+    sprintf(arg, "Displaying for Arg: %u", element);
+    sprintf(instruction, "Instruction: %s", line->instruction_name);
+
+    write_colored(instruction, 9);
+    write_colored(" ", 0);
+    write_colored(arg, 9);
+    write_colored(" ", 0);
+    write_colored(hex, 9);
+    write_colored(" ", 0);
+    write_colored(c, 9);
+    write_colored(" ", 0);
+    write_colored(dec, 9);
+    write_colored(" ", 0);
+
+    attrset(COLOR_PAIR(0));
     refresh();
 }
 
@@ -58,7 +114,7 @@ void write_line_at(uint32_t line_index, int y_pos, program_t *program) {
 }
 
 void write_program(program_t *program, uint32_t start_line) {
-    for (uint32_t i = start_line; i < program->line_amount && (i - start_line) < LINES - 1; i++) {
+    for (uint32_t i = start_line; i < program->line_amount && (i - start_line) < LINES - 2; i++) {
         write_line_at(i, (int)(i-start_line), program);
     }
     refresh();
@@ -82,30 +138,38 @@ bool save_scroll_to(uint32_t line_index, program_t *program) {
     move(0, 0);
     clear();
     write_program(program, line_index);
+    write_representation_line(line_index, program, 0);
     write_keymap_line();
     return true;
 }
 
-void move_cursor_up(uint32_t *line_index, program_t *program, int cur_y_pos, int cur_x_pos) {
-    if (cur_y_pos - 1 < 0) {
+void move_cursor_up(uint32_t *line_index, program_t *program, int *cur_y_pos, const int *cur_x_pos) {
+    if (*cur_y_pos - 1 < 0) {
+        *cur_y_pos = 0;
         if (save_scroll_to(*line_index - 1, program))
             (*line_index)--;
-    } else
-        move(cur_y_pos - 1, cur_x_pos);
+    } else{
+        move(*cur_y_pos - 1, *cur_x_pos);
+        *cur_y_pos -= 1;
+    }
 }
 
-void move_cursor_down(uint32_t *line_index, program_t *program, int cur_y_pos, int cur_x_pos) {
-    if (cur_y_pos + 1 >= LINES - 1) {
+void move_cursor_down(uint32_t *line_index, program_t *program, int* cur_y_pos, const int* cur_x_pos) {
+    if (*cur_y_pos + 1 >= LINES - 2) {
         if (save_scroll_to(*line_index + 1, program))
             (*line_index)++;
-        move(cur_y_pos, cur_x_pos);
-    } else if(cur_y_pos + 1)
-        move(cur_y_pos + 1, cur_x_pos);
+        *cur_y_pos = LINES - 3;
+        move(*cur_y_pos, *cur_x_pos);
+
+    } else if(*cur_y_pos + 1){
+        *cur_y_pos += 1;
+        move(*cur_y_pos, *cur_x_pos);
+    }
 }
 
 void mark_line_part(program_t *program, int y_pos, uint32_t line_index, int32_t *element) {
     write_line_at(line_index - 1, y_pos - 1, program);
-    if(y_pos + 1 < LINES - 1)
+    if(y_pos + 1 < LINES - 2)
         write_line_at(line_index + 1, y_pos + 1, program);
 
     if (*element < 0)
