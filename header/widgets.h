@@ -20,6 +20,8 @@ void write_keymap_line() {
     attrset(COLOR_PAIR(8));
     write_colored("q(quit)", 8);
     write_colored(" ", 0);
+    write_colored("s(save)", 8);
+    write_colored(" ", 0);
     write_colored("up arrow(scroll up)", 8);
     write_colored(" ", 0);
     write_colored("down arrow(scroll down)", 8);
@@ -180,14 +182,80 @@ void mark_line_part(program_t *program, int y_pos, uint32_t line_index, int32_t 
     move(y_pos, 0);
 }
 
-void write_saved(int y_pos){
-    WINDOW* save_state = dupwin(stdscr);
+void write_saved(){
+    WINDOW* saved_state = dupwin(stdscr);
 
     write_center_box("Saved!", "Press <enter>", 5, 5, 1);
 
     get_key_press();
-    overwrite(save_state, stdscr);
-    move(y_pos, 0);
+    overwrite(saved_state, stdscr);
+}
+
+void write_char_replace(){
+    WINDOW* saved_state = dupwin(stdscr);
+
+    char* text = "Enter your char:";
+
+    int largest_string_size = (int)strlen(text);
+    int i = 0;
+
+    write_center_box_top(largest_string_size, 1, i++);
+    write_center_box_line(text, 0, largest_string_size, 1, i++);
+    write_center_box_line("", 0, largest_string_size, 1, i++);
+    write_center_box_line("<enter>", 0, largest_string_size, 1, i++);
+    write_center_box_top(largest_string_size, 1, i);
+
+    int x_corner = COLS/2 - (2 + largest_string_size/2);
+    int y_corner = LINES/2 - 2;
+    char out;
+    move(y_corner + 3, x_corner);
+    get_input(&out, 1);
+    //
+    overwrite(saved_state, stdscr);
+    refresh();
+}
+
+
+void write_replace_select(){
+    WINDOW* saved_state = dupwin(stdscr);
+
+    char* c = "0.) Replace with char.";
+    char* hex = "1.) Replace with hex number.";
+    char* dec = "2.) Replace with decimal number.";
+
+    char* prompt = "Enter the number or 'e' to exit.";
+
+    int largest_string_size = (int)strlen(prompt);
+    int i = 0;
+
+    write_center_box_top(largest_string_size, 1, i++);
+
+    write_center_box_line(c, 0, largest_string_size, 1, i++);
+    write_center_box_line(hex, 0, largest_string_size, 1, i++);
+    write_center_box_line(dec, 0, largest_string_size, 1, i++);
+    write_center_box_line("", 0, largest_string_size, 1, i++);
+    write_center_box_line(prompt, 0, largest_string_size, 1, i++);
+
+    write_center_box_top(largest_string_size, 1, i);
+
+    int selection = get_key_press();
+
+    overwrite(saved_state, stdscr);
+    refresh();
+
+    switch (selection){
+        case ('0'):
+            write_char_replace();
+            break;
+        case ('1'):
+            break;
+        case ('2'):
+            break;
+        case ('e'):
+            break;
+        default:
+            break;
+    }
 }
 
 #endif

@@ -60,4 +60,15 @@ int save_file(const char *filename, program_t *program){
     return 0;
 }
 
+void replace_arg(uint32_t line_index, int element, program_t* program, uint8_t new_val){
+    if (element == 0){
+        write_error_prompt("Can't replace addresses!");
+        return;
+    }
+    if (element == 1)
+        return;
+
+    program->lines[line_index]->instruction_args[element - 2] = new_val;
+}
+
 #endif //VM_VISUALIZER_IO_H

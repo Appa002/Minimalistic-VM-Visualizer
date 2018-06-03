@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
     while (!exit) {
         selected_line_index = scrolled_to_line_index + y_pos;
 
-        if(scrolled_to_line_index + y_pos < program->line_amount){
+        if(selected_line_index < program->line_amount){
             mark_line_part(program, y_pos, selected_line_index, &column);
             write_representation_line(selected_line_index, program, (uint32_t)column);
         }
@@ -98,7 +98,10 @@ int main(int argc, char *argv[]) {
                 break;
             case ('s'):
                 if(save_file(argv[1], program));
-                    write_saved(y_pos);
+                    write_saved();
+                break;
+            case ('r'):
+                write_replace_select();
                 break;
             default:
                 break;
