@@ -67,49 +67,68 @@ int main(int argc, char *argv[]) {
     move(0, 0);
     int x_pos = 0;
     int y_pos = 0;
-    bool exit = false;
+    bool exiting = false;
     uint32_t scrolled_to_line_index = 0;
     int32_t column = 0;
     uint32_t selected_line_index;
 
-    while (!exit) {
+    while (!exiting) {
         selected_line_index = scrolled_to_line_index + y_pos;
 
-        if(selected_line_index < program->line_amount){
+        if (selected_line_index < program->line_amount) {
             mark_line_part(program, y_pos, selected_line_index, &column);
-            write_representation_line(selected_line_index, program, (uint32_t)column);
+            write_representation_line(selected_line_index, program, (uint32_t) column);
+        } else if (selected_line_index == program->line_amount) {
+            write_line_at(selected_line_index - 1, y_pos - 1, program);
         }
 
         int c = get_key_press();
-        switch (c){
-            case(KEY_UP):
+        switch (c) {
+            case (KEY_UP):
                 move_cursor_up(&scrolled_to_line_index, program, &y_pos, &x_pos);
                 break;
             case (KEY_DOWN):
                 move_cursor_down(&scrolled_to_line_index, program, &y_pos, &x_pos);
                 break;
             case (KEY_RIGHT):
+                if(selected_line_index >= program->line_amount)
+                    break;
                 column++;
                 break;
             case (KEY_LEFT):
+                if(selected_line_index >= program->line_amount)
+                    break;
                 column--;
                 break;
-            case('q'):
-                exit = true;
+            case ('q'):
+                exiting = true;
                 break;
             case ('s'):
-                if(save_file(argv[1], program));
-                    write_saved();
+                if (save_file(argv[1], program));
+                write_saved();
                 break;
             case ('r'):
+                if (selected_line_index >= program->line_amount)
+                    break;
+
                 if (column == 0) {
                     write_error_prompt("Can't replace addresses!");
-                }
-                else if(column == 1){
-                    write_error_prompt("To change an instruction delete the entire line and add a new one. This avoids having an incompatible amount of arguments!");
-                }
-                else
+                } else if (column == 1) {
+                    write_error_prompt(
+                            "To change an instruction delete the entire line and add a new one. This avoids having an incompatible amount of arguments!");
+                } else
                     write_replace_select(selected_line_index, column, program);
+                break;
+            case ('d'):
+                if (selected_line_index >= program->line_amount)
+                    break;
+
+                delete_line(selected_line_index, program);
+                column = 0;
+                clear();
+                write_program(program, scrolled_to_line_index);
+                write_representation_line(selected_line_index, program, 0);
+                write_keymap_line();
                 break;
             default:
                 break;
