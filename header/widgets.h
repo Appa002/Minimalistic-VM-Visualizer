@@ -25,6 +25,8 @@ void write_keymap_line() {
     write_colored(" ", 0);
     write_colored("s(save)", 8);
     write_colored(" ", 0);
+    write_colored("d(delete)", 8);
+    write_colored(" ", 0);
     write_colored("r(replace argument)", 8);
     write_colored(" ", 0);
     write_colored("up arrow(scroll up)", 8);

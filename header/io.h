@@ -66,4 +66,12 @@ void replace_arg(uint32_t line_index, int element, program_t *program, uint8_t n
     program->lines[line_index]->instruction_args[element - 2] = new_val;
 }
 
+void delete_line(uint32_t line_index, program_t* program){
+    program->raw_size -= program->lines[line_index]->line_raw_size;
+    program->line_amount--;
+    free(program->lines[line_index]);
+    for(int i = line_index; i < program->line_amount; i++){
+        program->lines[i] = program->lines[i + 1];
+    }
+}
 #endif //VM_VISUALIZER_IO_H
