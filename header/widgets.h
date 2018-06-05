@@ -32,6 +32,8 @@ void write_keymap_line() {
     write_colored("left arrow(select left)", 8);
     write_colored(" ", 0);
     write_colored("right arrow(select right)", 8);
+    write_colored(" ", 0);
+    write_colored("r(replace argument)", 8);
     attrset(COLOR_PAIR(0));
     move(0, 0);
     refresh();
