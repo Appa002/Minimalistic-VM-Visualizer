@@ -42,6 +42,7 @@ void init_ncurses() {
         init_pair(7, COLOR_WHITE, COLOR_BLACK);
         init_pair(8, COLOR_BLACK, COLOR_GREEN);
         init_pair(9, COLOR_BLACK, COLOR_WHITE);
+
     }
 }
 
@@ -101,7 +102,12 @@ int main(int argc, char *argv[]) {
                     write_saved();
                 break;
             case ('r'):
-                write_replace_select();
+                if (column == 0) {
+                    write_error_prompt("Can't replace addresses!");
+                }
+                else if(column == 1){}
+                else
+                    write_replace_select(selected_line_index, column, program);
                 break;
             default:
                 break;

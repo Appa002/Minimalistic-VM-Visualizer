@@ -11,9 +11,12 @@
 #include <signal.h>
 #include <ncurses/curses.h>
 #include <locale.h>
+#include <values.h>
+#include <errno.h>
 
 #include "program.h"
 #include "utils.h"
+#include "io.h"
 
 void write_keymap_line() {
     move(LINES - 1, 0);
@@ -191,7 +194,7 @@ void write_saved(){
     overwrite(saved_state, stdscr);
 }
 
-void write_char_replace(){
+void write_char_replace(uint32_t line_index, int element, program_t *program){
     WINDOW* saved_state = dupwin(stdscr);
 
     char* text = "Enter your char:";
@@ -207,25 +210,98 @@ void write_char_replace(){
 
     int x_corner = COLS/2 - (2 + largest_string_size/2);
     int y_corner = LINES/2 - 2;
-    char out;
-    move(y_corner + 3, x_corner);
-    get_input(&out, 1);
-    //
+    move(y_corner + 4, x_corner + 9);
+    char out[1];
+    get_input(out, 1);
+
+    replace_arg(line_index, element, program, (uint8_t)out[0]);
+
     overwrite(saved_state, stdscr);
     refresh();
 }
 
+void write_hex_replace(uint32_t line_index, int element, program_t *program){
+    WINDOW* saved_state = dupwin(stdscr);
 
-void write_replace_select(){
+    char* text = "Enter your hex num: (1 byte size)";
+
+    int largest_string_size = (int)strlen(text);
+    int i = 0;
+
+    write_center_box_top(largest_string_size, 1, i++);
+    write_center_box_line(text, 0, largest_string_size, 1, i++);
+    write_center_box_line("", 0, largest_string_size, 1, i++);
+    write_center_box_line("<enter>", 0, largest_string_size, 1, i++);
+    write_center_box_top(largest_string_size, 1, i);
+
+    int x_corner = COLS/2 - (2 + largest_string_size/2);
+    int y_corner = LINES/2 - 2;
+    move(y_corner + 4, x_corner + 18 - 1);
+    write_colored("0x", 0);
+    attron(A_BOLD);
+    char input_str[3];
+    input_str[3] = 0;
+    get_input(input_str, 2);
+    attroff(A_BOLD);
+
+    char* end_ptr;
+    uint8_t result = (uint8_t)strtol(input_str, &end_ptr, 16);
+    if (end_ptr == input_str) {
+        return;
+    }
+
+    replace_arg(line_index, element, program, result);
+
+    overwrite(saved_state, stdscr);
+    refresh();
+}
+
+void write_dec_replace(uint32_t line_index, int element, program_t *program){
+    WINDOW* saved_state = dupwin(stdscr);
+
+    char* text = "Enter your dec num: (1 byte size)";
+
+    int largest_string_size = (int)strlen(text);
+    int i = 0;
+
+    write_center_box_top(largest_string_size, 1, i++);
+    write_center_box_line(text, 0, largest_string_size, 1, i++);
+    write_center_box_line("", 0, largest_string_size, 1, i++);
+    write_center_box_line("<enter>", 0, largest_string_size, 1, i++);
+    write_center_box_top(largest_string_size, 1, i);
+
+    int x_corner = COLS/2 - (2 + largest_string_size/2);
+    int y_corner = LINES/2 - 2;
+    move(y_corner + 4, x_corner + 18);
+    char input_str[4];
+    input_str[4] = 0;
+    get_input(input_str, 3);
+
+    char* end_ptr;
+    long long result = strtol(input_str, &end_ptr, 10);
+    if (end_ptr == input_str) {
+        return;
+    }
+    overwrite(saved_state, stdscr);
+    if(result > 255){
+        write_error_prompt("Number must fit into a single byte!");
+        return;
+    }
+    replace_arg(line_index, element, program, (uint8_t)result);
+
+    refresh();
+}
+
+void write_replace_select(uint32_t line_index, int element, program_t *program){
     WINDOW* saved_state = dupwin(stdscr);
 
     char* c = "0.) Replace with char.";
     char* hex = "1.) Replace with hex number.";
     char* dec = "2.) Replace with decimal number.";
 
-    char* prompt = "Enter the number or 'e' to exit.";
+    char* prompt = "Enter number or 'e' to exit.";
 
-    int largest_string_size = (int)strlen(prompt);
+    int largest_string_size = (int)strlen(dec);
     int i = 0;
 
     write_center_box_top(largest_string_size, 1, i++);
@@ -245,13 +321,13 @@ void write_replace_select(){
 
     switch (selection){
         case ('0'):
-            write_char_replace();
+            write_char_replace(line_index, element, program);
             break;
         case ('1'):
+            write_hex_replace(line_index, element, program);
             break;
         case ('2'):
-            break;
-        case ('e'):
+            write_dec_replace(line_index, element, program);
             break;
         default:
             break;
