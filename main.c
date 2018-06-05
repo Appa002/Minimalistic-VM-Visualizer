@@ -105,7 +105,9 @@ int main(int argc, char *argv[]) {
                 if (column == 0) {
                     write_error_prompt("Can't replace addresses!");
                 }
-                else if(column == 1){}
+                else if(column == 1){
+                    write_error_prompt("To change an instruction delete the entire line and add a new one. This avoids having an incompatible amount of arguments!");
+                }
                 else
                     write_replace_select(selected_line_index, column, program);
                 break;
