@@ -27,7 +27,7 @@ program_t* generate_program(const char* filename){
     register_instructions(opt);
 
     uint32_t i = 0;
-    while (*ip != 'h'){
+    while (i < size && *ip != 'h'){
         line_t* line = malloc(sizeof(line_t));
         line->instruction_opt = *ip;
         ip = opt[*ip](ip, line);
@@ -37,7 +37,6 @@ program_t* generate_program(const char* filename){
         i++;
     }
     out->line_amount = i + 1;
-
     line_t* line = malloc(sizeof(line_t));
     line->line_address = (uint32_t)(ip - raw_data);
     line->instruction_args_amount = 0;
@@ -45,6 +44,7 @@ program_t* generate_program(const char* filename){
     line->line_raw_size = 1;
     line->instruction_opt = 'h';
 
+    out->raw_size += 1;
     out->lines[i] = line;
 
     return out;
