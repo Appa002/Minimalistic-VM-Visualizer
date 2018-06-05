@@ -183,10 +183,10 @@ void get_input_with_exit(char *out, uint32_t max_char) {
     int i = 0;
     while (1){
         int c = getch();
-        if(c == KEY_ENTER){
+        if(c == '\n' || c == '\r'){
             return;
         }
-        if(c == KEY_BACKSPACE){
+        else if(c == KEY_BACKSPACE){
             move(y, x - 1);
             addch(' ');
             out[i] = 0;
