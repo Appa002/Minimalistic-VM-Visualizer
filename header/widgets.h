@@ -25,6 +25,8 @@ void write_keymap_line() {
     write_colored(" ", 0);
     write_colored("s(save)", 8);
     write_colored(" ", 0);
+    write_colored("r(replace argument)", 8);
+    write_colored(" ", 0);
     write_colored("up arrow(scroll up)", 8);
     write_colored(" ", 0);
     write_colored("down arrow(scroll down)", 8);
@@ -32,8 +34,6 @@ void write_keymap_line() {
     write_colored("left arrow(select left)", 8);
     write_colored(" ", 0);
     write_colored("right arrow(select right)", 8);
-    write_colored(" ", 0);
-    write_colored("r(replace argument)", 8);
     attrset(COLOR_PAIR(0));
     move(0, 0);
     refresh();
@@ -277,8 +277,7 @@ void write_dec_replace(uint32_t line_index, int element, program_t *program){
     move(y_corner + 4, x_corner + 18);
     char input_str[4];
     input_str[4] = 0;
-    get_input(input_str, 3);
-
+    get_input_with_exit(input_str, 3);
     char* end_ptr;
     long long result = strtol(input_str, &end_ptr, 10);
     if (end_ptr == input_str) {
