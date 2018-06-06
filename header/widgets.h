@@ -17,6 +17,7 @@
 #include "program.h"
 #include "utils.h"
 #include "io.h"
+#include "helper.h"
 
 void write_keymap_line() {
     move(LINES - 1, 0);

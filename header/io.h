@@ -32,9 +32,9 @@ int load_file(const char *filename, unsigned char **result, size_t* size) {
 }
 
 int save_file(const char *filename, program_t *program){
-    FILE* f = fopen(filename, "wb");
+    FILE* f = fopen(filename, "w");
     if(f == NULL)
-        return  - 1;
+        return -1;
 
     uint8_t *raw_data = malloc(sizeof(uint8_t) * program->raw_size);
     line_t *line = NULL;
@@ -55,23 +55,8 @@ int save_file(const char *filename, program_t *program){
         return  -2;
     }
 
-    free(raw_data);
+    //free(raw_data);
     fclose(f);
     return 0;
-}
-
-void replace_arg(uint32_t line_index, int element, program_t *program, uint8_t new_val){
-    if(element < 2)
-        return;
-    program->lines[line_index]->instruction_args[element - 2] = new_val;
-}
-
-void delete_line(uint32_t line_index, program_t* program){
-    program->raw_size -= program->lines[line_index]->line_raw_size;
-    program->line_amount--;
-    free(program->lines[line_index]);
-    for(int i = line_index; i < program->line_amount; i++){
-        program->lines[i] = program->lines[i + 1];
-    }
 }
 #endif //VM_VISUALIZER_IO_H

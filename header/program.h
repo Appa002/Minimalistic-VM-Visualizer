@@ -20,6 +20,7 @@ typedef struct Line{
 
 typedef struct Program{
     uint32_t raw_size;
+    uint32_t allocated_size;
     uint32_t line_amount;
     line_t** lines;
 } program_t;

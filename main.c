@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
                     write_error_prompt("Can't replace addresses!");
                 } else if (column == 1) {
                     write_error_prompt(
-                            "To change an instruction delete the entire line and add a new one. This avoids having an incompatible amount of arguments!");
+                            "To change an instruction_t delete the entire line and add a new one. This avoids having an incompatible amount of arguments!");
                 } else
                     write_replace_select(selected_line_index, column, program);
                 break;
@@ -124,6 +124,16 @@ int main(int argc, char *argv[]) {
                     break;
 
                 delete_line(selected_line_index, program);
+                column = 0;
+                clear();
+                write_program(program, scrolled_to_line_index);
+                write_representation_line(selected_line_index, program, 0);
+                write_keymap_line();
+                break;
+            case ('a'):
+                if(selected_line_index >= program->line_amount)
+                    break;
+                add_line('b', selected_line_index + 1, &program);
                 column = 0;
                 clear();
                 write_program(program, scrolled_to_line_index);

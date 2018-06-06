@@ -7,7 +7,7 @@
 #include "program.h"
 #include "utils.h"
 
-typedef uint8_t* (*instruction)(uint8_t * ip, line_t* out);
+typedef uint8_t* (*instruction_t)(uint8_t * ip, line_t* out);
 
 uint8_t* add_to_ip(uint8_t* ip, uint32_t amount){
     while (amount > 0){
@@ -90,10 +90,15 @@ uint8_t* opt_read_from_stack(uint8_t* ip, line_t* out){}
 
 uint8_t* opt_write_to_stack(uint8_t* ip, line_t* out){}
 
-uint8_t* opt_pop_from_stack(uint8_t *ip, line_t* stack){}
+uint8_t* opt_pop_from_stack(uint8_t *ip, line_t* out){}
 
+uint8_t* opt_halt(uint8_t *ip, line_t* out){
+    out->instruction_name = create_string("halt");
+    out->instruction_args_amount = 0;
+    return add_to_ip(ip, 1);
+}
 
-void register_instructions(instruction* opt){
+void register_instructions(instruction_t* opt){
     for(size_t i = 0; i < 256; i++){
         opt[i] = opt_nop;
     }
@@ -120,6 +125,7 @@ void register_instructions(instruction* opt){
     opt['!'] = opt_jump_not_equal; // Executes a jump if the last compare determent that the first and second element of the stack are not equal. Expects 32bit num as first element on stack.
     opt['g'] = opt_call; // Executes a jump and pushes an pointer with the calls address on to the stack
     opt['r'] = opt_return; // Goes through the stack top-down and jumps to the first address found. (Returns from a 'call' call)
+    opt['h'] = opt_halt;
 
     ////// Logic controlling opt codes //////
     opt['c'] = opt_compare; // Pushes a Flag onto the stack which specifies if the two first objects on the stack are equal or if the first one is smaller/grater then the second.
