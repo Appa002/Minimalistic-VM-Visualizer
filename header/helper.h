@@ -31,8 +31,8 @@ program_t* generate_program(const char* filename){
     do{
         line_t* line = malloc(sizeof(line_t));
         line->instruction_opt = *ip;
-        ip = opt[*ip](ip, line);
         line->line_address = (uint32_t)(ip - raw_data);
+        ip = opt[*ip](ip, line);
         line->line_raw_size = 1 + line->instruction_args_amount;
         out->lines[i] = line;
         i++;
@@ -89,28 +89,31 @@ void add_line(uint8_t opt_code, uint32_t insert_index, program_t** program){
 
     line_t* line = malloc(sizeof(line_t));
     opts[opt_code](code, line);
-    //line->line_address = (uint32_t)((*program)->lines[line_after_index]->line_address + (*program)->lines[line_after_index]->instruction_args_amount + 1);
-    line->line_address = 0;
+
     line->line_raw_size = 1 + line->instruction_args_amount;
     line->instruction_opt = opt_code;
 
-   if((*program)->allocated_size < (*program)->raw_size + line->line_raw_size)
+   if((*program)->allocated_size < (*program)->raw_size + line->line_raw_size){
        *program = realocate_program(*program, (*program)->allocated_size * 2);
+   }
 
    line_t* temp = NULL;
    for(uint32_t i = insert_index; i < (*program)->line_amount + 1; i++){
        line_t* n = (*program)->lines[i];
        (*program)->lines[i] = temp;
        temp = n;
-   }
 
-   // [0] [1] [2] [3] [4]
-   //  0   0   1   2
-   // temp: 0
+   }
 
     (*program)->lines[insert_index] = line;
     (*program)->line_amount++;
     (*program)->raw_size += line->line_raw_size;
+
+   for(uint32_t i = insert_index; i < (*program)->line_amount; i++){
+       if(i - 1 < (*program)->line_amount)
+           (*program)->lines[i]->line_address = (*program)->lines[i - 1]->line_address + (*program)->lines[i - 1]->line_raw_size;
+   }
+
 }
 
 #endif //VM_VISUALIZER_HELPER_H
