@@ -130,16 +130,34 @@ int main(int argc, char *argv[]) {
                 write_representation_line(selected_line_index, program, 0);
                 write_keymap_line();
                 break;
+            case ('b'):
+                if(selected_line_index >= program->line_amount)
+                    break;
+                {
+                    uint8_t opt = write_opt_select();
+                    add_line((uint8_t)opt, selected_line_index, &program);
+                    column = 0;
+                    clear();
+                    write_program(program, scrolled_to_line_index);
+                    write_representation_line(selected_line_index, program, 0);
+                    write_keymap_line();
+                }
+                break;
+
             case ('a'):
                 if(selected_line_index >= program->line_amount)
                     break;
-                add_line('b', selected_line_index + 1, &program);
-                column = 0;
-                clear();
-                write_program(program, scrolled_to_line_index);
-                write_representation_line(selected_line_index, program, 0);
-                write_keymap_line();
+                {
+                    uint8_t opt = write_opt_select();
+                    add_line((uint8_t) opt, selected_line_index + 1, &program);
+                    column = 0;
+                    clear();
+                    write_program(program, scrolled_to_line_index);
+                    write_representation_line(selected_line_index, program, 0);
+                    write_keymap_line();
+                }
                 break;
+
             default:
                 break;
         }

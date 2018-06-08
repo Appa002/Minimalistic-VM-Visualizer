@@ -338,4 +338,38 @@ void write_replace_select(uint32_t line_index, int element, program_t *program){
     }
 }
 
+uint8_t write_opt_select(){
+    WINDOW* saved_state = dupwin(stdscr);
+
+    char* text = "Enter your instructions opt:";
+
+    int largest_string_size = (int)strlen(text);
+    int i = 0;
+
+    write_center_box_top(largest_string_size, 1, i++);
+    write_center_box_line(text, 0, largest_string_size, 1, i++);
+    write_center_box_line("", 0, largest_string_size, 1, i++);
+    write_center_box_line("<enter>", 0, largest_string_size, 1, i++);
+    write_center_box_top(largest_string_size, 1, i);
+
+    int x_corner = COLS/2 - (2 + largest_string_size/2);
+    int y_corner = LINES/2 - 2;
+    move(y_corner + 4, x_corner + 14);
+    write_colored("0x", 0);
+    attron(A_BOLD);
+    char input_str[3];
+    input_str[3] = 0;
+    get_input(input_str, 2);
+    attroff(A_BOLD);
+
+    char* end_ptr;
+    uint8_t result = (uint8_t)strtol(input_str, &end_ptr, 16);
+    if (end_ptr == input_str) {
+        return 0x0;
+    }
+
+    overwrite(saved_state, stdscr);
+    return result;
+}
+
 #endif
