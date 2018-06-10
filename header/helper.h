@@ -81,7 +81,10 @@ void delete_line(uint32_t line_index, program_t* program){
 }
 
 void add_line(uint8_t opt_code, uint32_t insert_index, program_t** program){
-    uint8_t code[256] = {0};
+    uint8_t code[256];
+    for(int i = 0; i < 256; i++){
+        code[i]= 0;
+    }
     code[0] = opt_code;
 
     instruction_t* opts = malloc(sizeof(instruction_t) * 256);
